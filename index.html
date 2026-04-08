@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>მაფია — ღამის ქალაქი</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+  <div class="moon"></div>
+
+  <!-- HOME -->
+
+  <div class="screen active" id="screen-home">
+    <div class="home-content">
+      <div class="eye-icon">👁</div>
+      <h1 class="title-geo">მაფია</h1>
+      <p class="subtitle">ღამის ქალაქი</p>
+      <button class="btn btn-red" onclick="App.goTo('screen-setup')">🎲 თამაშის დაწყება</button>
+      <button class="btn btn-dark" onclick="App.goTo('screen-rules')">📖 წესები</button>
+      <p class="version-text">კლასიკური თამაში... ან არა?</p>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+
+  <div class="screen" id="screen-setup">
+    <div class="container">
+      <h2 class="section-title">🎲 თამაშის მოწყობა</h2>
+
+```
+  <div class="card">
+    <label class="label">მოთამაშეების რაოდენობა</label>
+    <div class="counter-row">
+      <button class="counter-btn" onclick="App.changeCount(-1)">−</button>
+      <span class="counter-val" id="player-count">6</span>
+      <button class="counter-btn" onclick="App.changeCount(1)">+</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label class="label">მოთამაშეების სახელები</label>
+    <div id="player-names"></div>
+  </div>
+
+  <div class="card">
+    <label class="label">როლების კონფიგურაცია</label>
+    <div class="role-group">
+      <div class="role-header">
+        <span class="dot red"></span>
+        <span class="role-name">მაფია</span>
+        <div class="role-counter">
+          <button class="counter-btn sm" onclick="App.changeRole(-1)">−</button>
+          <span id="mafia-count">2</span>
+          <button class="counter-btn sm" onclick="App.changeRole(1)">+</button>
+        </div>
+      </div>
+      <div class="sub-roles">
+        <div class="sub-role">
+          <label class="toggle"><input type="checkbox" id="role-godfather" checked><span class="slider"></span></label>
+          <span class="dot red"></span><span>მაფიის ბოსი (GODFATHER)</span>
+        </div>
+        <div class="sub-role">
+          <label class="toggle"><input type="checkbox" id="role-detective" checked><span class="slider"></span></label>
+          <span class="dot blue"></span><span>დეტექტივი</span>
+        </div>
+        <div class="sub-role">
+          <label class="toggle"><input type="checkbox" id="role-doctor" checked><span class="slider"></span></label>
+          <span class="dot green"></span><span>ექიმი</span>
+        </div>
+        <div class="sub-role">
+          <label class="toggle"><input type="checkbox" id="role-maniac"><span class="slider"></span></label>
+          <span class="dot purple"></span><span>სერიული მკვლელი</span>
+        </div>
+        <div class="sub-role">
+          <label class="toggle"><input type="checkbox" id="role-bartender"><span class="slider"></span></label>
+          <span class="dot orange"></span><span>ბარმენი</span>
+        </div>
+      </div>
+    </div>
+    <p class="role-summary" id="role-summary"></p>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="App.goTo('screen-home')">← უკან</button>
+    <button class="btn btn-red" onclick="App.startGame()">დაწყება →</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- DEAL -->
+
+  <div class="screen" id="screen-deal">
+    <div class="container">
+      <h2 class="section-title">🃏 ბარათების გაცემა</h2>
+      <p class="deal-instruction">თითოეულმა მოთამაშემ დააჭიროს და მარტო შეხედოს თავის ბარათს</p>
+      <div id="deal-list"></div>
+      <div class="btn-row-center mt">
+        <button class="btn btn-red" onclick="App.goToNight()" id="btn-night" disabled>🌙 ღამის დაწყება</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD OVERLAY -->
+
+  <div class="overlay hidden" id="overlay-card">
+    <div class="card-reveal">
+      <p class="card-player-name" id="card-player-name"></p>
+      <div class="role-badge" id="card-role-badge"></div>
+      <p class="role-desc" id="card-role-desc"></p>
+      <button class="btn btn-red mt" onclick="App.closeCard()">დახურვა 🔒</button>
+    </div>
+  </div>
+
+  <!-- NIGHT -->
+
+  <div class="screen" id="screen-night">
+    <div class="container">
+      <div class="night-header">
+        <span>🌙</span>
+        <h2>ღამე <span id="night-num">1</span></h2>
+      </div>
+      <p class="phase-text">ქალაქი იძინებს... ახლა საიდუმლო ქმედებები</p>
+      <div id="night-phases"></div>
+      <div class="btn-row-center mt">
+        <button class="btn btn-red" onclick="App.goToDay()">☀️ დღის დაწყება</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY -->
+
+  <div class="screen" id="screen-day">
+    <div class="container">
+      <div class="day-header">
+        <span>☀️</span>
+        <h2>დღე <span id="day-num">1</span></h2>
+      </div>
+      <div class="card">
+        <label class="label">ღამის შედეგები</label>
+        <p id="night-result-text" style="white-space:pre-line;line-height:1.9;font-size:0.92rem;"></p>
+      </div>
+      <div class="card">
+        <label class="label">🗳 კენჭისყრა — ვინ არის მაფია?</label>
+        <div id="vote-list"></div>
+        <div class="btn-row-center mt">
+          <button class="btn btn-outline" onclick="App.skipVote()">გამოტოვება</button>
+          <button class="btn btn-red" onclick="App.eliminate()">განდევნა ❌</button>
+        </div>
+      </div>
+      <div class="btn-row-center mt">
+        <button class="btn btn-dark" onclick="App.goToNight2()">🌙 შემდეგი ღამე</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- END -->
+
+  <div class="screen" id="screen-end">
+    <div class="container" style="text-align:center;">
+      <div class="end-icon" id="end-icon">🎉</div>
+      <h2 id="end-title" class="section-title">გამარჯვება!</h2>
+      <p id="end-desc" style="color:var(--text-dim);margin-bottom:24px;font-size:0.95rem;"></p>
+      <div id="end-roles" style="width:100%;"></div>
+      <div class="btn-row-center mt">
+        <button class="btn btn-red" onclick="App.goTo('screen-home')">🔄 თავიდან</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RULES -->
+
+  <div class="screen" id="screen-rules">
+    <div class="container">
+      <h2 class="section-title">📖 წესები</h2>
+
+```
+  <div class="rules-section">
+    <div class="rules-section-title">🌙 ღამე</div>
+    <p class="rules-intro">ყველა "იძინებს". ცალ-ცალკე იღვიძებს:</p>
+    <div class="rules-role-list">
+      <span class="rrb red-badge">მაფია</span>
+      <span class="rra">— ირჩევს მსხვერპლს</span>
+    </div>
+    <div class="rules-role-list">
+      <span class="rrb blue-badge">დეტექტივი</span>
+      <span class="rra">— ამოწმებს ერთ მოთამაშეს</span>
+    </div>
+    <div class="rules-role-list">
+      <span class="rrb green-badge">ექიმი</span>
+      <span class="rra">— იცავს ერთ მოთამაშეს</span>
+    </div>
+    <div class="rules-role-list">
+      <span class="rrb purple-badge">სერიული მკვლელი</span>
+      <span class="rra">— კლავს ერთ მოთამაშეს</span>
+    </div>
+    <div class="rules-role-list">
+      <span class="rrb orange-badge">ბარმენი</span>
+      <span class="rra">— ბლოკავს ერთ მოთამაშეს</span>
+    </div>
+  </div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">☀️ დღე</div>
+    <p class="rules-intro">ქალაქი იდავებს და ხმას აძლევს ეჭვმიტანილს.</p>
+  </div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">🏆 გამარჯვება</div>
+    <div class="rules-role-list">
+      <span class="rrb white-badge">ქალაქი</span>
+      <span class="rra">— მოკლა ყველა მაფია და სერიული</span>
+    </div>
+    <div class="rules-role-list">
+      <span class="rrb red-badge">მაფია</span>
+      <span class="rra">— ქალაქთან ტოლი ან მეტი რიცხვი</span>
+    </div>
+    <div class="rules-role-list">
+      <span class="rrb purple-badge">სერიული მკვლელი</span>
+      <span class="rra">— მარტო გადარჩა</span>
+    </div>
+  </div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">📋 როლები</div>
+
+    <div class="role-card-detail red-card">
+      <div class="rcd-title">👑 მაფიის ბოსი (GODFATHER)</div>
+      <p class="rcd-desc">მაფია — მაგრამ დეტექტივი "უდანაშაულოდ" ხედავს.</p>
+    </div>
+    <div class="role-card-detail red-card">
+      <div class="rcd-title">🔫 მაფია</div>
+      <p class="rcd-desc">ღამით ირჩევს ვინ მოკვდეს. ბოსთან ერთად მუშაობს.</p>
+    </div>
+    <div class="role-card-detail blue-card">
+      <div class="rcd-title">🔍 დეტექტივი</div>
+      <p class="rcd-desc">ღამით ამოწმებს ერთი მოთამაშის ნამდვილ როლს.</p>
+    </div>
+    <div class="role-card-detail green-card">
+      <div class="rcd-title">💊 ექიმი</div>
+      <p class="rcd-desc">ღამით სიცოცხლეს უხსნის. საკუთარ თავსაც.</p>
+    </div>
+    <div class="role-card-detail purple-card">
+      <div class="rcd-title">🗡 სერიული მკვლელი</div>
+      <p class="rcd-desc">ყველასგან განცალკევებით კლავს. მიზანი — ყველა.</p>
+    </div>
+    <div class="role-card-detail orange-card">
+      <div class="rcd-title">🍸 ბარმენი</div>
+      <p class="rcd-desc">ბლოკავს ღამის ქმედებას — ვისაც ირჩევს ვერ მოქმედებს.</p>
+    </div>
+    <div class="role-card-detail gray-card">
+      <div class="rcd-title">👤 მოქალაქე</div>
+      <p class="rcd-desc">სპეციალური ძალა არ აქვს. ძალა კენჭისყრაშია.</p>
+    </div>
+  </div>
+
+  <div class="btn-row-center mt">
+    <button class="btn btn-outline" onclick="App.goTo('screen-home')">← მენიუში</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
