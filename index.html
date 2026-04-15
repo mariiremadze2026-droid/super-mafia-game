@@ -132,3 +132,626 @@ function updatePhase(){
 
 </body>
 </html>
+
+
+
+
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>მაფია — ღამის ქალაქი</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;600&display=swap');
+
+:root {
+–bg:#0a0a0f; –card:rgba(255,255,255,0.05); –cb:rgba(255,255,255,0.09);
+–red:#c0392b; –rb:#e74c3c; –gold:#c9a84c; –gl:#f0c060;
+–text:#e8e0d5; –dim:rgba(232,224,213,0.5);
+–blue:#3498db; –green:#27ae60; –purple:#9b59b6; –orange:#e67e22; –gray:#7f8c8d;
+–r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(–bg);color:var(–text);font-family:‘Noto Sans Georgian’,sans-serif;min-height:100vh;overflow-x:hidden;}
+
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(–d,3s) ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1);}50%{opacity:.85;transform:scale(1.4);}}
+
+.moon{position:fixed;top:30px;right:40px;width:80px;height:80px;border-radius:50%;
+background:radial-gradient(circle at 35% 35%,#f5e6c8,#d4b483);
+box-shadow:0 0 40px rgba(212,180,131,.4),0 0 80px rgba(212,180,131,.15);z-index:1;pointer-events:none;}
+
+.screen{display:none;min-height:100vh;position:relative;z-index:2;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* HOME */
+#screen-home{align-items:center;justify-content:center;text-align:center;}
+.home-content{display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px;animation:fadeUp .8s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.eye-icon{font-size:3rem;animation:pulse 2.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 12px rgba(192,57,43,.5));}50%{filter:drop-shadow(0 0 28px rgba(192,57,43,1));}}
+.title-geo{font-family:‘Noto Serif Georgian’,serif;font-size:clamp(3.5rem,14vw,6rem);font-weight:900;color:var(–gold);text-shadow:0 0 40px rgba(201,168,76,.5);letter-spacing:4px;line-height:1;}
+.subtitle{font-size:.95rem;color:var(–dim);letter-spacing:4px;font-family:‘Noto Serif Georgian’,serif;}
+.version-text{font-size:.75rem;color:var(–dim);margin-top:8px;}
+
+/* CONTAINER */
+.container{max-width:580px;margin:0 auto;padding:20px 16px 70px;width:100%;}
+
+/* CARD */
+.card{background:var(–card);border:1px solid var(–cb);border-radius:var(–r);padding:20px;margin-bottom:16px;backdrop-filter:blur(8px);}
+
+.lbl{display:block;font-size:.72rem;letter-spacing:2px;color:var(–dim);text-transform:uppercase;margin-bottom:14px;}
+
+.sec-title{font-family:‘Noto Serif Georgian’,serif;font-size:1.5rem;color:var(–gold);text-align:center;margin:22px 0 18px;}
+
+/* COUNTER */
+.ctr-row{display:flex;align-items:center;justify-content:center;gap:24px;}
+.ctr-val{font-size:2.5rem;font-weight:700;color:var(–gold);min-width:50px;text-align:center;font-family:‘Noto Serif Georgian’,serif;}
+.ctr-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(–cb);background:var(–card);color:var(–gold);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ctr-btn:hover{background:rgba(201,168,76,.15);border-color:var(–gold);}
+.ctr-btn.sm{width:30px;height:30px;font-size:1.1rem;}
+
+/* INPUTS */
+.pi-wrap{margin-bottom:10px;}
+.pi{width:100%;background:rgba(255,255,255,.04);border:1px solid var(–cb);border-radius:10px;padding:11px 14px;color:var(–text);font-family:‘Noto Sans Georgian’,sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+.pi:focus{border-color:var(–gold);}
+.pi::placeholder{color:var(–dim);}
+
+/* ROLES */
+.role-group{margin-bottom:10px;}
+.role-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.role-name{font-weight:600;flex:1;}
+.role-ctr{display:flex;align-items:center;gap:12px;font-size:1.2rem;font-weight:700;color:var(–gold);}
+.sub-roles{display:flex;flex-direction:column;gap:12px;padding-left:6px;}
+.sub-role{display:flex;align-items:center;gap:10px;font-size:.9rem;}
+
+.toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:24px;cursor:pointer;transition:.3s;}
+.slider::before{content:’’;position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.3s;}
+.toggle input:checked+.slider{background:var(–red);}
+.toggle input:checked+.slider::before{transform:translateX(20px);}
+
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;display:inline-block;}
+.dot.red{background:var(–rb);}.dot.blue{background:var(–blue);}.dot.green{background:var(–green);}
+.dot.purple{background:var(–purple);}.dot.orange{background:var(–orange);}.dot.gray{background:var(–gray);}
+
+.role-sum{font-size:.82rem;color:var(–gold);margin-top:14px;padding-top:14px;border-top:1px solid var(–cb);}
+
+/* BUTTONS */
+.btn{display:inline-block;padding:13px 26px;border-radius:50px;border:none;cursor:pointer;font-family:‘Noto Sans Georgian’,sans-serif;font-size:.95rem;font-weight:600;transition:all .25s;min-width:140px;}
+.btn-red{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;box-shadow:0 4px 20px rgba(192,57,43,.35);}
+.btn-red:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(192,57,43,.6);}
+.btn-red:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-dark{background:rgba(255,255,255,.08);color:var(–text);border:1px solid var(–cb);}
+.btn-dark:hover{background:rgba(255,255,255,.14);}
+.btn-out{background:transparent;color:var(–dim);border:1px solid var(–cb);}
+.btn-out:hover{border-color:var(–gold);color:var(–gold);}
+.btn-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;}
+.btn-ctr{display:flex;justify-content:center;align-items:center;gap:12px;}
+.mt{margin-top:20px;}
+
+/* DEAL */
+.deal-inst{color:var(–dim);font-size:.88rem;margin-bottom:18px;line-height:1.7;}
+.deal-item{background:var(–card);border:1px solid var(–cb);border-radius:var(–r);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.deal-item.seen{border-color:rgba(39,174,96,.3);}
+.pl-lbl{font-weight:600;font-size:.95rem;}
+.deal-st{font-size:.78rem;color:var(–dim);margin-top:3px;}
+.deal-item.seen .deal-st{color:var(–green);}
+.btn-sm{padding:8px 16px;font-size:.82rem;border-radius:30px;border:none;background:var(–red);color:#fff;cursor:pointer;font-family:‘Noto Sans Georgian’,sans-serif;transition:all .2s;white-space:nowrap;}
+.btn-sm:hover{background:var(–rb);}
+.btn-sm.done{background:rgba(39,174,96,.15);color:var(–green);border:1px solid rgba(39,174,96,.4);cursor:default;}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;display:flex;align-items:center;justify-content:center;}
+.overlay.hidden{display:none;}
+.card-reveal{background:linear-gradient(145deg,#1a1a2e,#16213e);border:1px solid var(–cb);border-radius:20px;padding:38px 28px;text-align:center;max-width:340px;width:90%;animation:scaleIn .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes scaleIn{from{transform:scale(.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+.cp-name{font-size:.8rem;color:var(–dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
+.rb-emoji{font-size:3.5rem;display:block;}
+.rb-name{display:block;font-family:‘Noto Serif Georgian’,serif;font-size:1.5rem;font-weight:700;margin-top:8px;}
+.role-desc{color:var(–dim);font-size:.88rem;line-height:1.65;}
+
+/* NIGHT */
+.night-hdr{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 8px;font-size:1.8rem;}
+.night-hdr h2{font-family:‘Noto Serif Georgian’,serif;font-size:1.9rem;color:var(–gold);}
+.phase-txt{color:var(–dim);margin-bottom:20px;font-size:.88rem;text-align:center;}
+.phase-card{background:var(–card);border:1px solid var(–cb);border-radius:var(–r);padding:16px 18px;margin-bottom:12px;}
+.ph-role{font-weight:700;font-size:1rem;margin-bottom:5px;}
+.ph-act{font-size:.82rem;color:var(–dim);}
+.phase-card select{margin-top:12px;width:100%;background:rgba(255,255,255,.06);border:1px solid var(–cb);border-radius:8px;padding:10px 12px;color:var(–text);font-family:‘Noto Sans Georgian’,sans-serif;font-size:.9rem;outline:none;}
+.phase-card select option{background:#1a1a2e;color:var(–text);}
+
+/* DAY */
+.day-hdr{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 18px;font-size:1.8rem;}
+.day-hdr h2{font-family:‘Noto Serif Georgian’,serif;font-size:1.9rem;color:var(–gl);}
+.vote-item{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(–cb);}
+.vote-item:last-child{border-bottom:none;}
+.vote-item label{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.95rem;}
+.vote-item input[type=radio]{accent-color:var(–red);width:16px;height:16px;cursor:pointer;}
+
+/* END */
+.end-icon{font-size:5rem;margin:30px 0 14px;animation:bounceIn .7s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bounceIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.end-role-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(–card);border-radius:10px;margin-bottom:8px;font-size:.88rem;}
+
+/* RULES */
+.rules-sec{background:var(–card);border:1px solid var(–cb);border-radius:var(–r);padding:18px 20px;margin-bottom:14px;}
+.rules-st{font-family:‘Noto Serif Georgian’,serif;color:var(–gold);font-size:1.05rem;font-weight:700;margin-bottom:12px;}
+.rules-intro{color:var(–dim);font-size:.85rem;margin-bottom:10px;line-height:1.6;}
+.rrl{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.rra{color:var(–dim);font-size:.85rem;}
+.rrb{font-size:.78rem;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid;white-space:nowrap;}
+.rb-red{background:rgba(192,57,43,.2);border-color:rgba(192,57,43,.5);color:#e74c3c;}
+.rb-blue{background:rgba(52,152,219,.2);border-color:rgba(52,152,219,.5);color:#3498db;}
+.rb-green{background:rgba(39,174,96,.2);border-color:rgba(39,174,96,.5);color:#27ae60;}
+.rb-purple{background:rgba(155,89,182,.2);border-color:rgba(155,89,182,.5);color:#9b59b6;}
+.rb-orange{background:rgba(230,126,34,.2);border-color:rgba(230,126,34,.5);color:#e67e22;}
+.rb-white{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:var(–text);}
+.rcd{border:1px solid;border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.rcd-t{font-weight:700;font-size:.92rem;margin-bottom:6px;}
+.rcd-d{color:var(–dim);font-size:.83rem;line-height:1.6;}
+.rcd.c-red{background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.3);}.rcd.c-red .rcd-t{color:#e74c3c;}
+.rcd.c-blue{background:rgba(52,152,219,.08);border-color:rgba(52,152,219,.25);}.rcd.c-blue .rcd-t{color:#3498db;}
+.rcd.c-green{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.25);}.rcd.c-green .rcd-t{color:#27ae60;}
+.rcd.c-purple{background:rgba(155,89,182,.08);border-color:rgba(155,89,182,.25);}.rcd.c-purple .rcd-t{color:#9b59b6;}
+.rcd.c-orange{background:rgba(230,126,34,.08);border-color:rgba(230,126,34,.25);}.rcd.c-orange .rcd-t{color:#e67e22;}
+.rcd.c-gray{background:rgba(127,140,141,.08);border-color:rgba(127,140,141,.25);}.rcd.c-gray .rcd-t{color:#95a5a6;}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(–bg);}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+@media(max-width:480px){.moon{width:55px;height:55px;top:14px;right:14px;}.btn{padding:12px 20px;font-size:.9rem;min-width:120px;}}
+</style>
+
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="moon"></div>
+
+<!-- HOME -->
+
+<div class="screen active" id="screen-home">
+  <div class="home-content">
+    <div class="eye-icon">👁</div>
+    <h1 class="title-geo">მაფია</h1>
+    <p class="subtitle">ღამის ქალაქი</p>
+    <button class="btn btn-red" id="btn-start">🎲 თამაშის დაწყება</button>
+    <button class="btn btn-dark" id="btn-rules">📖 წესები</button>
+    <p class="version-text">კლასიკური თამაში... ან არა?</p>
+  </div>
+</div>
+
+<!-- SETUP -->
+
+<div class="screen" id="screen-setup">
+  <div class="container">
+    <h2 class="sec-title">🎲 თამაშის მოწყობა</h2>
+    <div class="card">
+      <label class="lbl">მოთამაშეების რაოდენობა</label>
+      <div class="ctr-row">
+        <button class="ctr-btn" id="count-minus">−</button>
+        <span class="ctr-val" id="player-count">6</span>
+        <button class="ctr-btn" id="count-plus">+</button>
+      </div>
+    </div>
+    <div class="card">
+      <label class="lbl">მოთამაშეების სახელები</label>
+      <div id="player-names"></div>
+    </div>
+    <div class="card">
+      <label class="lbl">როლების კონფიგურაცია</label>
+      <div class="role-group">
+        <div class="role-header">
+          <span class="dot red"></span>
+          <span class="role-name">მაფია</span>
+          <div class="role-ctr">
+            <button class="ctr-btn sm" id="mafia-minus">−</button>
+            <span id="mafia-count">2</span>
+            <button class="ctr-btn sm" id="mafia-plus">+</button>
+          </div>
+        </div>
+        <div class="sub-roles">
+          <div class="sub-role">
+            <label class="toggle"><input type="checkbox" id="role-godfather" checked><span class="slider"></span></label>
+            <span class="dot red"></span><span>მაფიის ბოსი (GODFATHER)</span>
+          </div>
+          <div class="sub-role">
+            <label class="toggle"><input type="checkbox" id="role-detective" checked><span class="slider"></span></label>
+            <span class="dot blue"></span><span>დეტექტივი</span>
+          </div>
+          <div class="sub-role">
+            <label class="toggle"><input type="checkbox" id="role-doctor" checked><span class="slider"></span></label>
+            <span class="dot green"></span><span>ექიმი</span>
+          </div>
+          <div class="sub-role">
+            <label class="toggle"><input type="checkbox" id="role-maniac"><span class="slider"></span></label>
+            <span class="dot purple"></span><span>სერიული მკვლელი</span>
+          </div>
+          <div class="sub-role">
+            <label class="toggle"><input type="checkbox" id="role-bartender"><span class="slider"></span></label>
+            <span class="dot orange"></span><span>ბარმენი</span>
+          </div>
+        </div>
+      </div>
+      <p class="role-sum" id="role-summary"></p>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-out" id="setup-back">← უკან</button>
+      <button class="btn btn-red" id="btn-begin">დაწყება →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEAL -->
+
+<div class="screen" id="screen-deal">
+  <div class="container">
+    <h2 class="sec-title">🃏 ბარათების გაცემა</h2>
+    <p class="deal-inst">თითოეულმა მოთამაშემ დააჭიროს და მარტო შეხედოს თავის ბარათს</p>
+    <div id="deal-list"></div>
+    <div class="btn-ctr mt">
+      <button class="btn btn-red" id="btn-night" disabled>🌙 ღამის დაწყება</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARD OVERLAY -->
+
+<div class="overlay hidden" id="overlay-card">
+  <div class="card-reveal">
+    <p class="cp-name" id="card-pname"></p>
+    <div id="card-badge"></div>
+    <p class="role-desc" id="card-desc"></p>
+    <button class="btn btn-red mt" id="btn-close-card">დახურვა 🔒</button>
+  </div>
+</div>
+
+<!-- NIGHT -->
+
+<div class="screen" id="screen-night">
+  <div class="container">
+    <div class="night-hdr"><span>🌙</span><h2>ღამე <span id="night-num">1</span></h2></div>
+    <p class="phase-txt">ქალაქი იძინებს... ახლა საიდუმლო ქმედებები</p>
+    <div id="night-phases"></div>
+    <div class="btn-ctr mt">
+      <button class="btn btn-red" id="btn-goto-day">☀️ დღის დაწყება</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY -->
+
+<div class="screen" id="screen-day">
+  <div class="container">
+    <div class="day-hdr"><span>☀️</span><h2>დღე <span id="day-num">1</span></h2></div>
+    <div class="card">
+      <label class="lbl">ღამის შედეგები</label>
+      <p id="night-result" style="white-space:pre-line;line-height:1.9;font-size:.92rem;"></p>
+    </div>
+    <div class="card">
+      <label class="lbl">🗳 კენჭისყრა — ვინ არის მაფია?</label>
+      <div id="vote-list"></div>
+      <div class="btn-ctr mt">
+        <button class="btn btn-out" id="btn-skip">გამოტოვება</button>
+        <button class="btn btn-red" id="btn-eliminate">განდევნა ❌</button>
+      </div>
+    </div>
+    <div class="btn-ctr mt">
+      <button class="btn btn-dark" id="btn-next-night">🌙 შემდეგი ღამე</button>
+    </div>
+  </div>
+</div>
+
+<!-- END -->
+
+<div class="screen" id="screen-end">
+  <div class="container" style="text-align:center;">
+    <div class="end-icon" id="end-icon">🎉</div>
+    <h2 class="sec-title" id="end-title"></h2>
+    <p id="end-desc" style="color:var(--dim);margin-bottom:24px;font-size:.95rem;"></p>
+    <div id="end-roles"></div>
+    <div class="btn-ctr mt">
+      <button class="btn btn-red" id="btn-restart">🔄 თავიდან</button>
+    </div>
+  </div>
+</div>
+
+<!-- RULES -->
+
+<div class="screen" id="screen-rules">
+  <div class="container">
+    <h2 class="sec-title">📖 წესები</h2>
+    <div class="rules-sec">
+      <div class="rules-st">🌙 ღამე</div>
+      <p class="rules-intro">ყველა "იძინებს". ცალ-ცალკე იღვიძებს:</p>
+      <div class="rrl"><span class="rrb rb-red">მაფია</span><span class="rra">— ირჩევს მსხვერპლს</span></div>
+      <div class="rrl"><span class="rrb rb-blue">დეტექტივი</span><span class="rra">— ამოწმებს ერთ მოთამაშეს</span></div>
+      <div class="rrl"><span class="rrb rb-green">ექიმი</span><span class="rra">— იცავს ერთ მოთამაშეს</span></div>
+      <div class="rrl"><span class="rrb rb-purple">სერიული მკვლელი</span><span class="rra">— კლავს ერთ მოთამაშეს</span></div>
+      <div class="rrl"><span class="rrb rb-orange">ბარმენი</span><span class="rra">— ბლოკავს ერთ მოთამაშეს</span></div>
+    </div>
+    <div class="rules-sec">
+      <div class="rules-st">☀️ დღე</div>
+      <p class="rules-intro">ქალაქი იდავებს და ხმას აძლევს ეჭვმიტანილს.</p>
+    </div>
+    <div class="rules-sec">
+      <div class="rules-st">🏆 გამარჯვება</div>
+      <div class="rrl"><span class="rrb rb-white">ქალაქი</span><span class="rra">— მოკლა ყველა მაფია და სერიული</span></div>
+      <div class="rrl"><span class="rrb rb-red">მაფია</span><span class="rra">— ქალაქთან ტოლი ან მეტი რიცხვი</span></div>
+      <div class="rrl"><span class="rrb rb-purple">სერიული მკვლელი</span><span class="rra">— მარტო გადარჩა</span></div>
+    </div>
+    <div class="rules-sec">
+      <div class="rules-st">📋 როლები</div>
+      <div class="rcd c-red"><div class="rcd-t">👑 მაფიის ბოსი (GODFATHER)</div><p class="rcd-d">მაფია — მაგრამ დეტექტივი "უდანაშაულოდ" ხედავს.</p></div>
+      <div class="rcd c-red"><div class="rcd-t">🔫 მაფია</div><p class="rcd-d">ღამით ირჩევს ვინ მოკვდეს. ბოსთან ერთად.</p></div>
+      <div class="rcd c-blue"><div class="rcd-t">🔍 დეტექტივი</div><p class="rcd-d">ღამით ამოწმებს ერთი მოთამაშის ნამდვილ როლს.</p></div>
+      <div class="rcd c-green"><div class="rcd-t">💊 ექიმი</div><p class="rcd-d">ღამით სიცოცხლეს უხსნის. საკუთარ თავსაც.</p></div>
+      <div class="rcd c-purple"><div class="rcd-t">🗡 სერიული მკვლელი</div><p class="rcd-d">ყველასგან განცალკევებით კლავს. მიზანი — ყველა.</p></div>
+      <div class="rcd c-orange"><div class="rcd-t">🍸 ბარმენი</div><p class="rcd-d">ბლოკავს ღამის ქმედებას.</p></div>
+      <div class="rcd c-gray"><div class="rcd-t">👤 მოქალაქე</div><p class="rcd-d">სპეციალური ძალა არ აქვს. ძალა კენჭისყრაშია.</p></div>
+    </div>
+    <div class="btn-ctr mt">
+      <button class="btn btn-out" id="rules-back">← მენიუში</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var ROLES={
+  godfather:{name:'მაფიის ბოსი',sub:'GODFATHER',team:'mafia',emoji:'👑',color:'#e74c3c',cls:'red',desc:'მაფიის ლიდერი. დეტექტივი მოქალაქედ ხედავს.'},
+  mafia:{name:'მაფია',sub:'',team:'mafia',emoji:'🔫',color:'#e74c3c',cls:'red',desc:'ღამით ირჩევ ვინ მოკვდეს.'},
+  detective:{name:'დეტექტივი',sub:'',team:'town',emoji:'🔍',color:'#3498db',cls:'blue',desc:'ღამით ამოწმებ ერთი მოთამაშის როლს.'},
+  doctor:{name:'ექიმი',sub:'',team:'town',emoji:'💊',color:'#27ae60',cls:'green',desc:'ღამით ირჩევ ვინ გადარჩეს.'},
+  maniac:{name:'სერიული მკვლელი',sub:'',team:'neutral',emoji:'🗡',color:'#9b59b6',cls:'purple',desc:'ყველა ჩააძინე — მოქალაქეებიც და მაფიაც.'},
+  bartender:{name:'ბარმენი',sub:'',team:'town',emoji:'🍸',color:'#e67e22',cls:'orange',desc:'ღამით ირჩევ ვისი ქმედება დაბლოკო.'},
+  citizen:{name:'მოქალაქე',sub:'',team:'town',emoji:'👤',color:'#95a5a6',cls:'gray',desc:'ძალა კენჭისყრაშია.'}
+};
+
+var S={
+  pcount:6, mcount:2,
+  roles:{godfather:true,detective:true,doctor:true,maniac:false,bartender:false},
+  players:[], night:0, day:0, seenCards:[], currentCard:-1, nightResult:''
+};
+
+// Stars
+var sc=document.getElementById('stars');
+for(var i=0;i<130;i++){
+  var st=document.createElement('div');
+  st.className='star';
+  var sz=Math.random()*2.5+0.4;
+  st.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;--d:'+(Math.random()*4+2).toFixed(1)+'s;animation-delay:'+(Math.random()*6).toFixed(1)+'s;';
+  sc.appendChild(st);
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='screen-setup') renderSetup();
+}
+
+function shuffle(a){
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
+}
+
+function renderSetup(){
+  document.getElementById('player-count').textContent=S.pcount;
+  document.getElementById('mafia-count').textContent=S.mcount;
+  var wrap=document.getElementById('player-names');
+  var oldVals=Array.from(wrap.querySelectorAll('input')).map(function(x){return x.value;});
+  wrap.innerHTML='';
+  for(var i=0;i<S.pcount;i++){
+    var d=document.createElement('div');d.className='pi-wrap';
+    var inp=document.createElement('input');inp.type='text';inp.className='pi';
+    inp.placeholder='მოთამაშე '+(i+1);inp.value=oldVals[i]||'';
+    d.appendChild(inp);wrap.appendChild(d);
+  }
+  renderSummary();
+}
+
+function renderSummary(){
+  var sp=S.mcount;
+  if(S.roles.detective)sp++;if(S.roles.doctor)sp++;if(S.roles.bartender)sp++;if(S.roles.maniac)sp++;
+  var cit=S.pcount-sp;
+  var el=document.getElementById('role-summary');
+  if(cit<0){el.textContent='⚠️ ძალიან ბევრი როლი! შეამცირე.';el.style.color='#e74c3c';}
+  else{el.textContent='სულ: '+sp+' / მოთამაშეები: '+S.pcount+' — '+cit+' მოქალაქე';el.style.color='var(--gold)';}
+}
+
+function renderDeal(){
+  var list=document.getElementById('deal-list');list.innerHTML='';
+  S.players.forEach(function(p,i){
+    var seen=S.seenCards.indexOf(i)>=0;
+    var d=document.createElement('div');d.className='deal-item'+(seen?' seen':'');
+    d.innerHTML='<div><div class="pl-lbl">'+p.name+'</div><div class="deal-st">'+(seen?'✓ ნახულია':'ჯერ არ უნახავს')+'</div></div>'
+      +(seen?'<button class="btn-sm done">✓</button>':'<button class="btn-sm" data-idx="'+i+'">ბარათის ნახვა</button>');
+    list.appendChild(d);
+  });
+  var btn=document.getElementById('btn-night');
+  if(btn)btn.disabled=S.seenCards.length<S.players.length;
+  list.querySelectorAll('.btn-sm[data-idx]').forEach(function(b){
+    b.addEventListener('click',function(){showCard(parseInt(b.getAttribute('data-idx')));});
+  });
+}
+
+function showCard(i){
+  var p=S.players[i];var role=ROLES[p.role];S.currentCard=i;
+  document.getElementById('card-pname').textContent=p.name;
+  document.getElementById('card-badge').innerHTML='<span class="rb-emoji">'+role.emoji+'</span><span class="rb-name" style="color:'+role.color+'">'+role.name+(role.sub?' ('+role.sub+')':'')+'</span>';
+  document.getElementById('card-desc').textContent=role.desc;
+  document.getElementById('overlay-card').classList.remove('hidden');
+}
+
+function renderNight(){
+  document.getElementById('night-num').textContent=S.night;
+  var c=document.getElementById('night-phases');c.innerHTML='';
+  var alive=S.players.filter(function(p){return p.alive;}).map(function(p){return p.name;});
+  addPhase(c,'sel-mafia','🔫 მაფია','ვინ მოკლათ?',alive);
+  if(S.roles.detective&&S.players.some(function(p){return p.alive&&p.role==='detective';}))
+    addPhase(c,'sel-det','🔍 დეტექტივი','ვინ შეამოწმო?',alive);
+  if(S.roles.doctor&&S.players.some(function(p){return p.alive&&p.role==='doctor';}))
+    addPhase(c,'sel-doc','💊 ექიმი','ვინ გადაარჩინო?',alive);
+  if(S.roles.maniac&&S.players.some(function(p){return p.alive&&p.role==='maniac';}))
+    addPhase(c,'sel-man','🗡 სერიული მკვლელი','ვინ მოკლა?',alive);
+  if(S.roles.bartender&&S.players.some(function(p){return p.alive&&p.role==='bartender';}))
+    addPhase(c,'sel-bar','🍸 ბარმენი','ვის დაუბლოკო?',alive);
+}
+
+function addPhase(c,sid,title,action,names){
+  var d=document.createElement('div');d.className='phase-card';
+  var opts=names.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+  d.innerHTML='<div class="ph-role">'+title+'</div><div class="ph-act">'+action+'</div>'
+    +'<select id="'+sid+'"><option value="">— გამოტოვება —</option>'+opts+'</select>';
+  c.appendChild(d);
+}
+
+function getVal(id){var e=document.getElementById(id);return e?e.value:'';}
+
+function processNight(){
+  var kill=getVal('sel-mafia'),save=getVal('sel-doc'),check=getVal('sel-det'),
+      maniackill=getVal('sel-man'),block=getVal('sel-bar');
+  var res=[];
+
+  // mafia
+  if(kill){
+    var mblocked=block&&S.players.some(function(p){return p.name===block&&(p.role==='mafia'||p.role==='godfather');});
+    if(mblocked){res.push('🍸 ბარმენმა მაფიის ქმედება დაბლოკა!');}
+    else if(kill===save){res.push('💊 ექიმმა '+kill+' გადაარჩინა!');}
+    else{var p=findAlive(kill);if(p){p.alive=false;res.push('☠️ '+p.name+' მოკლული იქნა ღამით.');}}
+  }
+  // maniac
+  if(maniackill){
+    if(block===maniackill){res.push('🍸 ბარმენმა სერიული მკვლელი დაბლოკა.');}
+    else if(maniackill===save){res.push('💊 ექიმმა '+maniackill+' სერიული მკვლელისგანაც გადაარჩინა!');}
+    else{var mp=findAlive(maniackill);if(mp){mp.alive=false;res.push('🗡 '+mp.name+' სერიული მკვლელის მსხვერპლი გახდა.');}}
+  }
+  // detective
+  if(check){
+    var dp=S.players.find(function(pl){return pl.name===check;});
+    if(dp){
+      var app=dp.role==='godfather'?'მოქალაქე ⚠️ (სინამდვილეში ბოსი!)':(dp.role==='mafia'?'მაფია 🔴':'მოქალაქე ✅');
+      res.push('🔍 [დეტექტივს]: '+check+' — '+app);
+    }
+  }
+  if(res.length===0)res.push('🌙 ღამე მშვიდად გავიდა.');
+  S.nightResult=res.join('\n');
+}
+
+function findAlive(name){return S.players.find(function(p){return p.name===name&&p.alive;});}
+
+function renderDay(){
+  document.getElementById('day-num').textContent=S.day;
+  document.getElementById('night-result').textContent=S.nightResult;
+  var vl=document.getElementById('vote-list');vl.innerHTML='';
+  S.players.filter(function(p){return p.alive;}).forEach(function(p){
+    var d=document.createElement('div');d.className='vote-item';
+    d.innerHTML='<label><input type="radio" name="vote" value="'+p.name+'"><span>'+p.name+'</span></label>';
+    vl.appendChild(d);
+  });
+}
+
+function checkWin(){
+  var alive=S.players.filter(function(p){return p.alive;});
+  var maf=alive.filter(function(p){return p.role==='mafia'||p.role==='godfather';});
+  var man=alive.filter(function(p){return p.role==='maniac';});
+  var town=alive.filter(function(p){return p.role!=='mafia'&&p.role!=='godfather'&&p.role!=='maniac';});
+  if(maf.length===0&&man.length===0){setTimeout(function(){showEnd('🏆 მოქალაქეების გამარჯვება!','🏆','ქალაქი გაიწმინდა!');},600);return true;}
+  if(maf.length>=town.length&&man.length===0){setTimeout(function(){showEnd('🔫 მაფიის გამარჯვება!','🔫','სიბნელემ გაიმარჯვა.');},600);return true;}
+  if(man.length>0&&alive.length<=2){setTimeout(function(){showEnd('🗡 სერიული მკვლელი!','🗡','მარტოხელა მონადირე.');},600);return true;}
+  return false;
+}
+
+function showEnd(title,icon,desc){
+  document.getElementById('end-icon').textContent=icon;
+  document.getElementById('end-title').textContent=title;
+  document.getElementById('end-desc').textContent=desc;
+  var er=document.getElementById('end-roles');er.innerHTML='';
+  S.players.forEach(function(p){
+    var r=ROLES[p.role];var d=document.createElement('div');d.className='end-role-item';
+    d.innerHTML='<span class="dot '+r.cls+'"></span><strong>'+p.name+'</strong><span style="color:var(--dim)">'+r.emoji+' '+r.name+'</span>'
+      +'<span style="margin-left:auto;font-size:.78rem;color:'+(p.alive?'var(--green)':'var(--rb)')+'">'+( p.alive?'✓ ცოცხალი':'✗ მკვდარი')+'</span>';
+    er.appendChild(d);
+  });
+  goTo('screen-end');
+}
+
+// EVENT LISTENERS
+document.getElementById('btn-start').addEventListener('click',function(){goTo('screen-setup');});
+document.getElementById('btn-rules').addEventListener('click',function(){goTo('screen-rules');});
+document.getElementById('rules-back').addEventListener('click',function(){goTo('screen-home');});
+document.getElementById('setup-back').addEventListener('click',function(){goTo('screen-home');});
+
+document.getElementById('count-minus').addEventListener('click',function(){S.pcount=Math.max(4,S.pcount-1);renderSetup();});
+document.getElementById('count-plus').addEventListener('click',function(){S.pcount=Math.min(16,S.pcount+1);renderSetup();});
+document.getElementById('mafia-minus').addEventListener('click',function(){S.mcount=Math.max(1,S.mcount-1);document.getElementById('mafia-count').textContent=S.mcount;renderSummary();});
+document.getElementById('mafia-plus').addEventListener('click',function(){S.mcount=Math.min(Math.floor(S.pcount/2),S.mcount+1);document.getElementById('mafia-count').textContent=S.mcount;renderSummary();});
+
+['godfather','detective','doctor','maniac','bartender'].forEach(function(id){
+  var el=document.getElementById('role-'+id);
+  if(el)el.addEventListener('change',function(){S.roles[id]=el.checked;renderSummary();});
+});
+
+document.getElementById('btn-begin').addEventListener('click',function(){
+  var sp=S.mcount;
+  if(S.roles.detective)sp++;if(S.roles.doctor)sp++;if(S.roles.bartender)sp++;if(S.roles.maniac)sp++;
+  if(sp>S.pcount){alert('ძალიან ბევრი სპეციალური როლია!');return;}
+  var pool=[];
+  if(S.roles.godfather){pool.push('godfather');for(var i=1;i<S.mcount;i++)pool.push('mafia');}
+  else{for(var i=0;i<S.mcount;i++)pool.push('mafia');}
+  if(S.roles.detective)pool.push('detective');
+  if(S.roles.doctor)pool.push('doctor');
+  if(S.roles.bartender)pool.push('bartender');
+  if(S.roles.maniac)pool.push('maniac');
+  while(pool.length<S.pcount)pool.push('citizen');
+  shuffle(pool);
+  var inputs=document.querySelectorAll('.pi');
+  S.players=Array.from(inputs).map(function(inp,i){return{name:inp.value.trim()||'მოთამაშე '+(i+1),role:pool[i],alive:true};});
+  S.seenCards=[];S.night=0;S.day=0;S.nightResult='';
+  goTo('screen-deal');renderDeal();
+});
+
+document.getElementById('btn-close-card').addEventListener('click',function(){
+  if(S.seenCards.indexOf(S.currentCard)<0)S.seenCards.push(S.currentCard);
+  document.getElementById('overlay-card').classList.add('hidden');
+  renderDeal();
+});
+
+document.getElementById('btn-night').addEventListener('click',function(){
+  S.night++;goTo('screen-night');renderNight();
+});
+
+document.getElementById('btn-goto-day').addEventListener('click',function(){
+  processNight();S.day++;goTo('screen-day');renderDay();checkWin();
+});
+
+document.getElementById('btn-skip').addEventListener('click',function(){alert('კენჭისყრა გამოტოვებულია.');});
+
+document.getElementById('btn-eliminate').addEventListener('click',function(){
+  var sel=document.querySelector('input[name="vote"]:checked');
+  if(!sel){alert('ჯერ ვინმე აირჩიე!');return;}
+  var p=S.players.find(function(pl){return pl.name===sel.value;});
+  if(p){p.alive=false;alert(p.name+' განდევნილ იქნა!\nროლი: '+ROLES[p.role].emoji+' '+ROLES[p.role].name);}
+  checkWin();
+});
+
+document.getElementById('btn-next-night').addEventListener('click',function(){
+  S.night++;goTo('screen-night');renderNight();
+});
+
+document.getElementById('btn-restart').addEventListener('click',function(){goTo('screen-home');});
+
+renderSetup();
+})();
+</script>
+
+</body>
+</html>
