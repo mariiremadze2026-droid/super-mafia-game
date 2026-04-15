@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<title>super-mafia-game</title>
+
+<style>
+body{
+  background:#0b0b18;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+
+input,button{
+  padding:10px;
+  margin:5px;
+}
+
+.player{
+  background:#222;
+  margin:5px;
+  padding:8px;
+  cursor:pointer;
+}
+
+.selected{
+  border:2px solid yellow;
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<h1>🎭 super-mafia-game (HTML ONLY)</h1>
+
+<div id="setup">
+  <input id="names" placeholder="სახელები ( , ით გაყოფილი)">
+  <button onclick="startGame()">დაწყება</button>
+</div>
+
+<hr>
+
+<h2 id="phase"></h2>
+<h3 id="role"></h3>
+
+<div id="players"></div>
+
+<button onclick="setAction('kill')">🔫 მოკვლა</button>
+<button onclick="setAction('heal')">🩺 განკურნება</button>
+<button onclick="nextPhase()">შემდეგი ფაზა</button>
+
+<script>
+let players = [];
+let currentIndex = 0;
+let phase = "night";
+let action = null;
+let selected = null;
+
+const roles = ["მოქალაქე","მოქალაქე","მოქალაქე","მაფია","ექიმი","დეტექტივი"];
+
+function startGame(){
+  let names = document.getElementById("names").value.split(",");
+
+  players = names.map((n,i)=>({
+    name:n.trim(),
+    role:roles[i] || "მოქალაქე",
+    alive:true
+  }));
+
+  showPlayer();
+  render();
+  updatePhase();
+}
+
+function showPlayer(){
+  if(currentIndex < players.length){
+    document.getElementById("role").innerText =
+      "შენი როლი: " + players[currentIndex].role;
+  }
+}
+
+function render(){
+  document.getElementById("players").innerHTML =
+    players.map((p,i)=>
+      `<div class="player ${selected==i?"selected":""}"
+      onclick="selectPlayer(${i})">
+      ${p.name} ${p.alive?"🟢":"🔴"}
+      </div>`
+    ).join("");
+}
+
+function selectPlayer(i){
+  selected = i;
+  render();
+}
+
+function setAction(a){
+  action = a;
+}
+
+function nextPhase(){
+
+  if(action && selected !== null){
+    if(action==="kill"){
+      players[selected].alive = false;
+    }
+
+    if(action==="heal"){
+      players[selected].alive = true;
+    }
+  }
+
+  selected = null;
+  action = null;
+
+  currentIndex = (currentIndex + 1) % players.length;
+
+  showPlayer();
+  render();
+  updatePhase();
+}
+
+function updatePhase(){
+  phase = phase==="night" ? "day" : "night";
+  document.getElementById("phase").innerText =
+    phase==="night" ? "🌙 ღამე" : "🌞 დღე";
+}
+</script>
+
+</body>
+</html>
