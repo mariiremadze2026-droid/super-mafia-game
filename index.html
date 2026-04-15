@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mafia Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🎭 Mafia Game</h1>
+    <p>შექმენი ოთახი ან შეუერთდი თამაშს</p>
+
+    <div class="menu">
+        <input type="text" id="playerName" placeholder="შენი სახელი">
+        <button onclick="createRoom()">ოთახის შექმნა</button>
+        <button onclick="joinRoom()">ოთახში შესვლა</button>
+    </div>
+
+    <div id="roomSection" class="hidden">
+        <h2>ოთახი: <span id="roomCode"></span></h2>
+        <p>მოთამაშეები:</p>
+        <ul id="playersList"></ul>
+
+        <button onclick="startGame()">თამაშის დაწყება</button>
+    </div>
+
+    <div id="gameSection" class="hidden">
+        <h2 id="phaseText">ღამე</h2>
+        <p id="roleText"></p>
+
+        <div class="chat">
+            <div id="messages"></div>
+            <input type="text" id="msgInput" placeholder="დაწერე...">
+            <button onclick="sendMessage()">გაგზავნა</button>
+        </div>
+
+        <button onclick="nextPhase()">შემდეგი ფაზა</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
